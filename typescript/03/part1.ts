@@ -68,16 +68,26 @@ const LocalPossibilities = (point: Point, map: Map): Point[] => {
   return LocalMap;
 };
 
-const Hit_SearchY = (point: Point, map: Map): boolean => {
-  const Pos_Y_Direction = maxY(map) - point.y
-  const Neg_Y_Direction = point.y
-  const SearchArray: number[] = []
+const SearchPoints = (foundPoint: Point, localMap: Point[], EngineMap: Map): boolean => {
+  const LocalPoints_X_Values = localMap.map((localPoint: Point)=>{
+    return localPoint.x
+  })
   
-  for (let y = point.y - Neg_Y_Direction; y <= point.y + Pos_Y_Direction; y++) {
-    if (IsNumber(map[y][point.x].value)) {
+  localMap.map((localPoint: Point)=>{
+    if (IsNumber(localPoint.value)) {
+      const xLine = EngineMap[localPoint.y].map((mapPoint: Point)=>{
+        if (IsNumber(mapPoint.value)) {
+            return mapPoint
+        }
+      })
       
+
+
+      }
     }
-  }
+  )
+  return false
+}
 
 const TestLoop = (): boolean => {
   const MadeMap = MapMaker(TEST_INPUT);
@@ -86,7 +96,7 @@ const TestLoop = (): boolean => {
       line.map((point: Point) => {
         if (point.value === '*') {
           const localMap = LocalPossibilities(point, MadeMap);
-        
+          SearchPoints(point,localMap, MadeMap)
         }
       })
     )
