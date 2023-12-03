@@ -1,7 +1,6 @@
-import input from './input';
-import { writeFileSync } from 'fs';
+import { readFileSync, writeFileSync } from 'fs';
 
-const INPUT_01 = input.split('\n');
+const INPUT_01 = readFileSync('./01/input.txt', 'utf8').split('\n');
 const REGEX =
   /0|1|2|3|4|5|6|7|8|9|one|two|three|four|five|six|seven|eight|nine/g;
 const MAP: { [key: string]: string } = {
@@ -34,4 +33,4 @@ const result = INPUT_01.map((input: string) => {
   return parseInt(firstNumber.concat(secondNumber));
 }).reduce((a: number, b: number) => a + b);
 
-writeFileSync('output_01_part2.txt', result.toString(), 'utf-8');
+writeFileSync('./01/output_01_part2.txt', result.toString(), 'utf-8');
