@@ -1,0 +1,7 @@
+{
+  "name": "Launch program",
+  "type": "node",
+  "request": "launch",
+  "program": "${workspaceFolder}/*/*.ts",
+  "preLaunchTask": "tsc: build - tsconfig.json"
+}
