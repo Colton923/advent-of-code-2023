@@ -148,14 +148,46 @@ const GetNextValue = (value: number, prodMaps: ProductionMap[]): number => {
   return returnValue;
 };
 
-const GetLocation = (seed: number[], maps: ProductionMap[][]) => {};
+const CleanSeeds = (seed: number[], maps: ProductionMap[][], newSeeds: number[]) => {
+  const soilMap = maps[0]
+  const seedStart = seed[0]
+  const seedRange = seed[1]
+  const Test = soilMap.map((map)=>{
+    const sourceRange = GetSourceRange(map)
+    
+    const overlap = Math.max(0, Math.max(sourceRange.rangeStart, seedStart) - Math.min(sourceRange.rangeEnd, seedStart+seedRange-1)+1)
+    return overlap
+  }).filter((value)=>{
+    if (value > 0) {
+      return true
+    } else {
+      return false
+    }
+  })
+  console.log('test', Test)
+
+  if (!Test[0] || Test[0] === 0) {
+    newSeeds.push(seedStart)
+  } else {
+    newSeeds.push(Test[0])
+  }
+  seed.shift()
+seed.shift()
+if (seed.length===0) {
+  return newSeeds
+}
+return CleanSeeds(seed,maps, newSeeds)
+};
 
 const Part2 = (input: string) => {
   const seeds = GetSeeds(input.split('\n')[0]);
   const productionMaps = MAPS.map((mapName: string) => {
     return GetMap(input, mapName);
   });
-  return GetLocation(seeds, productionMaps);
+  let newArr:number[] = []
+  const testSeeds = CleanSeeds(seeds, productionMaps, newArr)
+  console.log('testSeeds', testSeeds)
+  // return GetLocation(seeds, productionMaps);
 };
 
 console.log(Part2(INPUT));
