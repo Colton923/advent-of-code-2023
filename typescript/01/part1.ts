@@ -1,6 +1,6 @@
-import { readFileSync, writeFileSync } from 'fs';
+import { readFileSync, writeFileSync } from "fs";
 
-const INPUT_01 = readFileSync('./01/input.txt', 'utf8').split('\n');
+const INPUT_01 = readFileSync("./01/input.txt", "utf8").split("\n");
 const REGEX = /[0-9]/g;
 
 const makeArr = (input: string): string[] => {
@@ -21,4 +21,4 @@ const result = INPUT_01.map((input: string) => {
   return concatNumber(firstNumber, secondNumber);
 }).reduce((a: number, b: number) => a + b);
 
-writeFileSync('./01/output_01_part1.txt', result.toString(), 'utf-8');
+writeFileSync("./01/output_01_part1.txt", result.toString(), "utf-8");
