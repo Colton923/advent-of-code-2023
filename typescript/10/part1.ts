@@ -68,16 +68,15 @@ const GetNextDirection = (
   pipe: [Directions],
   previousDirection: cardinals
 ): cardinals => {
-  const nextDirections = pipe.find((x) => x.has(previousDirection));
-  if (!nextDirections) {
-    throw new Error("No next direction found");
+  for (const directionMap of pipe) {
+    if (directionMap.has(previousDirection)) {
+      for (let [key, _] of directionMap) {
+        if (key !== previousDirection) {
+          return key;
+        }
+      }
+    }
   }
-  const possibleDirections = [...nextDirections.keys()];
-  const nextDirection = possibleDirections.find((x) => x !== previousDirection);
-  if (!nextDirection) {
-    throw new Error("No next found");
-  }
-  return nextDirection;
 };
 
 const InitPuzzle = (
@@ -85,10 +84,10 @@ const InitPuzzle = (
   pipes: Pipes
 ): { puzzle: PuzzleMap; direction: cardinals } => {
   const [y, x] = FindS(input);
-  let NorthPipe = "";
-  let SouthPipe = "";
-  let EastPipe = "";
-  let WestPipe = "";
+  let NorthPipe = '';
+  let SouthPipe = '';
+  let EastPipe = '';
+  let WestPipe = '';
   if (y - 1 > 0) {
     NorthPipe = input[y - 1][x];
   }
@@ -102,23 +101,23 @@ const InitPuzzle = (
     EastPipe = input[y][x + 1];
   }
   const NorthPipeLeadsToS =
-    NorthPipe === "F" || NorthPipe === "7" || NorthPipe === "|";
+    NorthPipe === 'F' || NorthPipe === '7' || NorthPipe === '|';
   const SouthPipeLeadsToS =
-    SouthPipe === "L" || SouthPipe === "J" || SouthPipe === "|";
+    SouthPipe === 'L' || SouthPipe === 'J' || SouthPipe === '|';
   const EastPipeLeadsToS =
-    EastPipe === "J" || EastPipe === "7" || EastPipe === "-";
+    EastPipe === 'J' || EastPipe === '7' || EastPipe === '-';
   const WestPipeLeadsToS =
-    WestPipe === "F" || WestPipe === "L" || WestPipe === "-";
+    WestPipe === 'F' || WestPipe === 'L' || WestPipe === '-';
   //South East First
-  let nextCardinalDirection: cardinals = "S";
+  let nextCardinalDirection: cardinals = 'S';
   let possibilities = [];
   if (NorthPipeLeadsToS && SouthPipeLeadsToS) {
     // Taking South Pipe
     const southPipe = pipes.get(SouthPipe);
     if (!southPipe) {
-      throw new Error("No south pipe found");
+      throw new Error('No south pipe found');
     }
-    nextCardinalDirection = GetNextDirection(southPipe, "N");
+    nextCardinalDirection = GetNextDirection(southPipe, 'N');
     possibilities.push({
       puzzle: [{ x: x, y: y + 1 }],
       direction: nextCardinalDirection,
@@ -128,9 +127,9 @@ const InitPuzzle = (
     // Taking East Pipe
     const eastPipe = pipes.get(EastPipe);
     if (!eastPipe) {
-      throw new Error("No east pipe found");
+      throw new Error('No east pipe found');
     }
-    nextCardinalDirection = GetNextDirection(eastPipe, "W");
+    nextCardinalDirection = GetNextDirection(eastPipe, 'W');
     possibilities.push({
       puzzle: [{ x: x + 1, y: y }],
       direction: nextCardinalDirection,
@@ -140,9 +139,9 @@ const InitPuzzle = (
     // Taking East Pipe
     const eastPipe = pipes.get(EastPipe);
     if (!eastPipe) {
-      throw new Error("No east pipe found");
+      throw new Error('No east pipe found');
     }
-    nextCardinalDirection = GetNextDirection(eastPipe, "W");
+    nextCardinalDirection = GetNextDirection(eastPipe, 'W');
     possibilities.push({
       puzzle: [{ x: x + 1, y: y }],
       direction: nextCardinalDirection,
@@ -152,9 +151,9 @@ const InitPuzzle = (
     // Taking East Pipe
     const eastPipe = pipes.get(EastPipe);
     if (!eastPipe) {
-      throw new Error("No east pipe found");
+      throw new Error('No east pipe found');
     }
-    nextCardinalDirection = GetNextDirection(eastPipe, "W");
+    nextCardinalDirection = GetNextDirection(eastPipe, 'W');
     possibilities.push({
       puzzle: [{ x: x + 1, y: y }],
       direction: nextCardinalDirection,
@@ -164,9 +163,9 @@ const InitPuzzle = (
     // Taking South Pipe
     const southPipe = pipes.get(SouthPipe);
     if (!southPipe) {
-      throw new Error("No south pipe found");
+      throw new Error('No south pipe found');
     }
-    nextCardinalDirection = GetNextDirection(southPipe, "N");
+    nextCardinalDirection = GetNextDirection(southPipe, 'N');
     possibilities.push({
       puzzle: [{ x: x, y: y + 1 }],
       direction: nextCardinalDirection,
@@ -176,16 +175,16 @@ const InitPuzzle = (
     // Taking North Pipe
     const northPipe = pipes.get(NorthPipe);
     if (!northPipe) {
-      throw new Error("No west pipe found");
+      throw new Error('No west pipe found');
     }
-    nextCardinalDirection = GetNextDirection(northPipe, "S");
+    nextCardinalDirection = GetNextDirection(northPipe, 'S');
     possibilities.push({
       puzzle: [{ x: x, y: y - 1 }],
       direction: nextCardinalDirection,
     });
   }
   if (possibilities.length === 0) {
-    throw new Error("No possibilities found");
+    throw new Error('No possibilities found');
   }
   const { puzzle, direction } = possibilities[0];
   return { puzzle, direction };
@@ -193,15 +192,29 @@ const InitPuzzle = (
 
 const InverseDirection = (direction: cardinals): cardinals => {
   switch (direction) {
-    case "N":
-      return "S";
-    case "S":
-      return "N";
-    case "E":
-      return "W";
-    case "W":
-      return "E";
+    case 'N':
+      return 'S';
+    case 'S':
+      return 'N';
+    case 'E':
+      return 'W';
+    case 'W':
+      return 'E';
   }
+};
+
+const buildDirectionCache = (PipeMap: Pipes) => {
+  const cache = new Map();
+  PipeMap.forEach((directions, pipeType) => {
+    directions.forEach((direction) => {
+      for (let [key, value] of direction) {
+        const inverseDirection = InverseDirection(key);
+        const cacheKey = `${pipeType}-${inverseDirection}`;
+        cache.set(cacheKey, key);
+      }
+    });
+  });
+  return cache as Map<string, cardinals>;
 };
 
 const FollowPipe = (
@@ -210,44 +223,42 @@ const FollowPipe = (
   input: string[][],
   PipeMap: Pipes,
   direction: cardinals,
-  total: number
+  total: number,
+  directionCache: Map<string, cardinals>
 ): number => {
-  let x = xInput;
-  let y = yInput;
-  const current = input[y][x];
-  const directions = PipeMap.get(current);
-  if (!directions) {
-    throw new Error("No directions found");
-  }
-  if (current === "S" || current === ".") {
+  if (input[yInput][xInput] === 'S' || input[yInput][xInput] === '.') {
     total += 1;
-    if (current === "S") {
+    if (input[yInput][xInput] === 'S') {
       return total;
-    } else {
-      throw new Error("No solution found");
     }
   }
-  const nextDirections = directions.find((x) => x.has(direction));
+  const currentPipe = input[yInput][xInput];
+  const cacheKey = `${currentPipe}-${direction}`;
+  console.log('cacheKey', cacheKey);
+  console.log('directionCache', directionCache);
+  const nextCardinal = directionCache.get(cacheKey);
+  const nextDirections = PipeMap.get(currentPipe);
   if (!nextDirections) {
-    throw new Error("No next directions found");
+    throw new Error('No next directions found');
   }
-  const possibleDirections = [...nextDirections.keys()];
-
-  const nextDirection = possibleDirections.find((x) => x === direction);
-  if (!nextDirection) {
-    throw new Error("No next found");
+  const nextDirectionCoords = nextDirections
+    .find((x) => {
+      return x.has(nextCardinal);
+    })
+    .get(nextCardinal);
+  if (!nextDirectionCoords) {
+    throw new Error('No next direction coords found');
   }
-
-  const nextDirectionCoords = nextDirections.get(nextDirection);
-  const newX = x + nextDirectionCoords.x;
-  const newY = y + nextDirectionCoords.y;
-  const prevCardinal = InverseDirection(direction);
-  const nextCardinal = GetNextDirection(
-    PipeMap.get(input[newY][newX]),
-    prevCardinal
-  );
   total += 1;
-  return FollowPipe(newX, newY, input, PipeMap, nextCardinal, total);
+  return FollowPipe(
+    xInput + nextDirectionCoords.x,
+    yInput + nextDirectionCoords.y,
+    input,
+    PipeMap,
+    nextCardinal,
+    total,
+    directionCache
+  );
 };
 
 const Part1 = (input: string): number => {
@@ -255,13 +266,15 @@ const Part1 = (input: string): number => {
   const Input = GetInput(input);
   const { puzzle, direction } = InitPuzzle(Input, PipeMap);
   let total = 0;
+  const directionCache = buildDirectionCache(PipeMap);
   const solutionMap = FollowPipe(
     puzzle[0].x,
     puzzle[0].y,
     Input,
     PipeMap,
     direction,
-    total
+    total,
+    directionCache
   );
   const steps = solutionMap % 2 === 0 ? solutionMap / 2 : (solutionMap - 1) / 2;
   return steps;
